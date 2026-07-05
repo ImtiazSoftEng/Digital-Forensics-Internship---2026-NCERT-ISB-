@@ -1,0 +1,14 @@
+Tools Used in Task 10 - Windows User Activity Forensics
+
+1. Autopsy
+Download from official website:
+https://www.autopsy.com/download/
+
+2. FTK Imager
+Download from official Exterro website.
+
+3. WinPrefetchView
+Download from NirSoft website.
+
+4. Event Viewer
+Built-in Windows tool.
