@@ -1,0 +1,1 @@
+InternUser connected a USB device to the Windows VM and copied Confidential_Report.txt to the USB drive. The user also opened the copied file from USB. Later, Project_Plan.txt was deleted and moved to Recycle Bin. Several applications were opened to generate application execution artifacts.
