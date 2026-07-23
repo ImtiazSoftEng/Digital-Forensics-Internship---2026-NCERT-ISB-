@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 3 Summary – File-System Forensics & Data Recovery</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: #ffffff;
+    color: #1a1a1a;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+    line-height: 1.7;
+    font-size: 17px;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 28px;
+    line-height: 1.3;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 40px 0 16px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+  }
+  p { margin: 0 0 18px; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  pre.diagram {
+    font-family: "Courier New", Courier, monospace;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 0 0 32px;
+  }
+  pre.lifecycle {
+    font-family: "Courier New", Courier, monospace;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 0 0 20px;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 40px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 24px;
+    font-size: 15.5px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #f0f0f0;
+    font-weight: 700;
+  }
+  code {
+    font-family: "Courier New", Courier, monospace;
+    background: #eeeeee;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.92em;
+  }
+  blockquote {
+    margin: 24px 0;
+    padding: 16px 24px;
+    background: #f7f7f7;
+    border-left: 3px solid #999;
+    font-style: italic;
+  }
+  .intro {
+    font-style: italic;
+    color: #333;
+    margin-bottom: 32px;
+  }
+</style>
+</head>
+<body>
+
+<pre class="diagram">Disk Image
+   ↓
+Filesystem (ext4)
+   ↓
+Superblock        ← "How is this filesystem organized?"
+   ↓
+Group Descriptor  ← "Where are the block groups?"
+   ↓
+Block Group       ← "Where are the inode tables and data?"
+   ↓
+Directory Entry   ← "Which inode belongs to this filename?"
+   ↓
+Inode             ← "Where is the file stored?"
+   ↓
+Data Blocks       ← "Read the actual evidence."</pre>
+
+<p class="intro">Perfect. This is exactly the kind of summary you should keep as your <strong>mental model</strong>. If someone asked you <strong>"What did you actually do in this project?"</strong>, this is the story you should remember.</p>
+
+<hr>
+
+<h1>Week 3 Summary – File-System Forensics &amp; Data Recovery</h1>
+
+<p>This project was not simply about creating files or running Linux commands. Its real objective was to understand how a forensic investigator prepares a realistic evidence dataset that can later be analyzed during a digital forensic investigation.</p>
+
+<p>We began by designing a realistic investigation scenario. Instead of randomly creating files, we imagined a corporate insider threat where an employee named Alex Carter was suspected of attempting to hide confidential company information before leaving the organization. Having a realistic scenario gave purpose to every action we performed throughout the project. Every file, folder, and modification represented user behavior that an investigator might encounter in a real case.</p>
+
+<p>After planning the scenario, we created a <strong>raw disk image</strong> using the Linux <code>dd</code> command. A disk image is simply a byte-for-byte representation of an entire storage device stored inside a single file. At this stage, the image contained nothing except zero bytes. It had no filesystem, no directories, no files, and no metadata. It was equivalent to purchasing a brand-new hard drive that had never been used.</p>
+
+<p>However, a blank storage device cannot store files. Therefore, the next step was creating an <strong>Ext4 filesystem</strong> using the <code>mkfs.ext4</code> utility. This was one of the most important concepts of the project. A filesystem is what transforms raw storage into an organized structure capable of storing files and directories. During this process, Linux automatically created important internal structures such as the superblock, inode tables, block groups, journals, and allocation bitmaps. These structures are extremely important in digital forensics because they store metadata about files and often contain valuable evidence even after files have been deleted.</p>
+
+<p>Once the filesystem existed, the disk image still behaved like an ordinary file. To interact with it, we mounted the image using a <strong>loop device</strong>. Mounting tells Linux to treat the image exactly like a physical hard drive. After mounting, the filesystem became accessible through a directory, allowing us to create folders and files inside the virtual disk just as we would on a real storage device.</p>
+
+<p>With the storage environment prepared, we began constructing a realistic employee workstation. We created directories such as <strong>HR</strong>, <strong>Projects</strong>, <strong>Personal</strong>, <strong>Downloads</strong>, <strong>Archive</strong>, and <strong>Temp</strong>. These folders were intentionally chosen because they resemble the layout commonly found on business computers. Inside them, we created realistic files including project documentation, meeting notes, payroll information, password files, activity logs, and personal files. The goal was not to create random data but to simulate normal user activity that investigators might later analyze.</p>
+
+<p>The next phase represented the actions of the suspect. This was the most important part of the project because it generated the forensic artifacts that investigators would later examine. We intentionally renamed a project document to disguise its purpose, hid a confidential payroll file by changing its filename to begin with a period, deleted a personal photograph using the <code>rm</code> command, securely destroyed a password file using <code>shred</code>, and moved a USB activity log into another directory. Although these actions appear simple, each one leaves different traces inside the filesystem. Some files remain recoverable, some metadata changes, and some evidence becomes much harder to recover. Understanding these differences is one of the fundamental skills of a DFIR analyst.</p>
+
+<p>After completing the evidence manipulation, we treated the image as completed forensic evidence. We safely unmounted the filesystem to ensure no further modifications would occur. We then calculated a <strong>SHA-256 cryptographic hash</strong> of the completed image. This hash acts as the digital fingerprint of the evidence. If even a single byte changes in the future, the hash value will also change. This is why forensic investigators always calculate and verify hashes to prove the integrity of digital evidence.</p>
+
+<p>Finally, we documented the project by creating an answer key and a quality assurance checklist. The answer key records every intentional modification performed during dataset creation so that investigators or instructors can compare their findings against the known ground truth. The QA checklist confirms that every stage of the dataset was completed successfully and that the image is ready for forensic analysis.</p>
+
+<hr>
+
+<h2>The Big Picture (What You Should Remember)</h2>
+
+<p>Think of the entire project as building a crime scene.</p>
+
+<pre class="lifecycle">Scenario
+      ↓
+Create an Empty Hard Drive
+      ↓
+Install a Filesystem
+      ↓
+Mount the Filesystem
+      ↓
+Populate it with Realistic User Data
+      ↓
+Perform Suspicious User Actions
+      ↓
+Preserve the Evidence
+      ↓
+Document Everything
+      ↓
+Give the Image to Investigators</pre>
+
+<p>That is the entire lifecycle of this project.</p>
+
+<hr>
+
+<h2>What Each Command Really Did</h2>
+
+<table>
+  <thead>
+    <tr><th>Command</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>dd</code></td><td>Created a blank virtual hard drive (disk image).</td></tr>
+    <tr><td><code>mkfs.ext4</code></td><td>Installed the Ext4 filesystem so the disk could store files.</td></tr>
+    <tr><td><code>mount -o loop</code></td><td>Mounted the image and made Linux treat it as a real hard drive.</td></tr>
+    <tr><td><code>mkdir</code></td><td>Created a realistic directory structure.</td></tr>
+    <tr><td><code>nano</code> / <code>touch</code></td><td>Added realistic user files to simulate normal activity.</td></tr>
+    <tr><td><code>mv</code></td><td>Renamed and moved files, creating forensic artifacts.</td></tr>
+    <tr><td><code>rm</code></td><td>Deleted files, leaving potentially recoverable evidence.</td></tr>
+    <tr><td><code>shred -u</code></td><td>Securely deleted a file, simulating an anti-forensic technique.</td></tr>
+    <tr><td><code>umount</code></td><td>Safely detached the filesystem, preventing further modifications.</td></tr>
+    <tr><td><code>sha256sum</code></td><td>Generated a cryptographic fingerprint to verify evidence integrity.</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>The DFIR Perspective</h2>
+
+<p>As a Digital Forensics and Incident Response (DFIR) professional, you are <strong>not</strong> interested in the commands themselves. Your real objective is to understand the story they tell. Every user action—creating, renaming, moving, hiding, or deleting a file—leaves traces within the filesystem. Your job is to collect those traces, reconstruct the sequence of events, determine what happened, and explain your findings clearly and objectively.</p>
+
+<p>This project taught you how a forensic dataset is built before any investigation begins. In real investigations, you will rarely create the evidence yourself. Instead, you will receive an already acquired forensic image. Because you now understand how that image is structured internally and how different user actions generate artifacts, you are better prepared to analyze evidence, recover deleted files, interpret filesystem metadata, and reconstruct user activity.</p>
+
+<hr>
+
+<h2>The Most Important Lesson</h2>
+
+<blockquote>
+<strong>Digital forensics is not about memorizing Linux commands. It is about understanding how operating systems store information, how users interact with that information, how those interactions leave forensic artifacts, and how investigators use those artifacts to reconstruct the truth.</strong>
+</blockquote>
+
+<p>If you remember <strong>this one idea</strong>, you've understood the real purpose of the entire assignment.</p>
+
+</body>
+</html>
