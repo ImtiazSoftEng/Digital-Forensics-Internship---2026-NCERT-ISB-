@@ -396,11 +396,11 @@ The repository contains the internship tasks, project files, tools, reports, scr
 
 ---
 
-# 📜 Internship Certificate
+## 📜 Internship Certificate
 
-I successfully completed the **8-Week Digital Forensics Internship** at **National CERT (NCERT), Pakistan**.
+The official **NCERT Digital Forensics Internship 2026 Certificate** is included in this repository.
 
-📜 **[View / Open Internship Certificate](certificate/NCERT_Digital_Forensics_Internship_Certificate.pdf)**
+📄 [View Internship Certificate](certificate/NCERT_Digital_Forensics_Internship_Certificate.pdf)
 
 ---
 
