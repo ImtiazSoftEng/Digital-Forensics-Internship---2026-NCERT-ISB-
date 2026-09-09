@@ -400,7 +400,7 @@ The repository contains the internship tasks, project files, tools, reports, scr
 
 The official **NCERT Digital Forensics Internship 2026 Certificate** is included in this repository.
 
-📄 [View Internship Certificate](certificate/NCERT_Digital_Forensics_Internship_Certificate.pdf)
+📄 [View Internship Certificate](certificate/1044-Imtiaz-Ali _NCERT_Intership.pdf)
 
 ---
 
